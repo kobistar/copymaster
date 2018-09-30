@@ -1,25 +1,34 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <errno.h>
+#include <string.h>
+
 #include "util.h"
+
 
 struct CopymasterOptions ParseCopymaterOptions(int argc, char *argv[]) {
     
+    extern int optind;
     extern char* optarg;
-    extern int optind, opterr, optopt;
 
-    struct CopymasterOptions cpm_options;
+    struct CopymasterOptions cpm_options = {0};
     
     // premenne pre argumenty prepinacov
-    long size;  //
-    char x;
-    long pos1, pos2, num;
+    char c, x;
+    unsigned long long num;
+    long pos1, pos2;
+    
 
-    // spracovanie prepinacov
     while (1)
     {
-        int this_option_optind = optind ? optind : 1;
+        // viac informacii o spracovani jednotlivych prepinacov 
+        //  - pozri: man 3 getopt
+        
         int option_index = 0;
-
-        // viac informacii o spracovani jednotlivych moznosti - pozri - // man 3
-        // getopt
         
         static struct option long_options[] = {
             { "fast",      no_argument,       0, 'f' },
@@ -38,49 +47,97 @@ struct CopymasterOptions ParseCopymaterOptions(int argc, char *argv[]) {
             { "sparse",    no_argument,       0, 'S' },
             { 0,             0,               0,  0  },
         };
-        c = getopt_long(argc, argv, "sft:l:", // doplnte dalsie volby (options)
-            // podla zadania - aj ci su s argumentom
-            long_options, &option_index);
+        c = getopt_long(argc, argv, "fsc:oal:Ddm:i:u:lt:s", 
+                        long_options, &option_index);
         if (c == -1)
-            break; // ziadne dalsie volby
+            break; 
+        
         switch (c)
         {
-            case 's': // spracovanie - moznost 's'
-                printf("prepinac - s\n");
-                // pokracovanie spracovania
+            case 'f':
+                cpm_options.fast = 1;
                 break;
-            case 'f': // spracovanie - moznosť 'f'
-                printf("prepinac - f\n");
-                // pokracovanie spracovania
+            case 's': 
+                cpm_options.slow = 1;
                 break;
-            case 't': // spracovanie - moznost 't'
-                printf("prepinac - t\n");
-                size = atoi(optarg); // spracovanie argumentu danej volby (option)
-                printf("size=%ld\n", size);
-                // pokracovanie spracovania
+            case 'c': 
+                cpm_options.create = 1;
+                sscanf(optarg, "%o", &cpm_options.create_mode);
                 break;
-            case 'l': // spracovanie - option 'l'
-                printf("prepinac - l\n");
-                sscanf(optarg, "%c,%ld,%ld,%ld", &x, &pos1, &pos2,
-                    &num); // spracovanie argumentu danej voľby (option)
-                printf("x=%c\n", x);
-                printf("pos1=%ld\n", pos1);
-                printf("pos2=%ld\n", pos2);
-                printf("num=%ld\n", num);
-                // ...    			   pokracovanie spracovania
+            case 'o': 
+                cpm_options.overwrite = 1;
                 break;
-
-            // analogickym sposobom osetrite dalsie volby
-            // ....
-            // vsetky volby osetrene
-
-            // osetrenie chyby spracovania prepinacov
+            case 'a': 
+                cpm_options.append = 1;
+                break;
+            case 'l': 
+                sscanf(optarg, "%c,%ld,%ld,%llu", &x, &pos1, &pos2, &num); 
+                cpm_options.lseek_options.pos1 = (off_t)pos1;
+                cpm_options.lseek_options.pos2 = (off_t)pos2;
+                cpm_options.lseek_options.num = (size_t)num;
+                switch (x) 
+                {
+                    case 'b':
+                        cpm_options.lseek_options.x = SEEK_SET;
+                        break;
+                    case 'e':
+                        cpm_options.lseek_options.x = SEEK_END;
+                        break;
+                    case 'c':
+                        cpm_options.lseek_options.x = SEEK_CUR;
+                        break;
+                }
+                break;
+            case 'D': 
+                cpm_options.directory = 1;
+                break;
+            case 'd': 
+                cpm_options.delete_opt = 1;
+                break;
+            case 'm': 
+                cpm_options.chmod = 1;
+                sscanf(optarg, "%o", &cpm_options.chmod_mode);
+                break;
+            case 'i': 
+                cpm_options.inode = 1;
+                sscanf(optarg, "%lu", &cpm_options.inode_number);
+                break;
+            case 'u': 
+                // TODO
+                cpm_options.umask = 1;
+                sscanf(optarg, "%o", &cpm_options.umask_mode);
+                break;
+            case 'k': 
+                cpm_options.link = 1;
+                break;
+            case 't':
+                cpm_options.truncate = 1;
+                sscanf(optarg, "%ld", &pos1);
+                cpm_options.truncate_size = (off_t)pos1; 
+                break;
             case '?':
-            //  break;
             default:
                 fprintf(stderr, "Usage: %s [s|f] [-t size] [-l x,pos1,pos2,num] \n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }
+        
+    // Kontrola ci boli zadanie parametre infile a outfile
+    if (optind + 1 >= argc) {
+        FatalError(' ', "CHYBA PREPINACOV", 20); // TODO toto by mala byt unikatna chyba
+        exit(EXIT_FAILURE);
+    }
     
+    cpm_options.infile = argv[optind];
+    cpm_options.outfile = argv[optind + 1];
+    
+    return cpm_options;
+}
+
+void FatalError(char c, const char* msg, int exit_status)
+{
+    fprintf(stderr, "%c:%d\n", c, errno); // removed space
+    fprintf(stderr, "%c:%s\n", c, strerror(errno));
+    fprintf(stderr, "%c:%s\n", c, msg);
+    exit(exit_status);
 }

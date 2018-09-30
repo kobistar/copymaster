@@ -1,111 +1,77 @@
-// sem vlozte potrebne hlavickove subory --------------------------------
 #include <stdio.h>
-#include <unistd.h>
-#include <getopt.h>
-#include <stdlib.h>
-// ----------------------------------------------------------------------
+
+#include "util.h"
+
 
 int main(int argc, char* argv[])
 {
-    extern char* optarg;
-    extern int optind, opterr, optopt;
+    struct CopymasterOptions cpm_options = ParseCopymaterOptions(argc, argv);
 
-    // lokalne premenne
-    int c;
-    int digit_optind = 0;
+    // Kontrola hodnot prepinacov
+    
+    printf("infile:\t%s\n", cpm_options.infile);
+    printf("outfile:\t%s\n", cpm_options.outfile);
+    
+    printf("fast:\t%d\n", cpm_options.fast);
+    printf("slow:\t%d\n", cpm_options.slow);
+    printf("create:\t%d\n", cpm_options.create);
+    printf("create_mode:\t%d\n", cpm_options.create_mode);
+    printf("overwrite:\t%d\n", cpm_options.overwrite);
+    printf("append:\t%d\n", cpm_options.append);
+    printf("lseek:\t%d\n", cpm_options.lseek);
+    
+    printf("lseek_options.x:\t%d\n", cpm_options.lseek_options.x);
+    printf("lseek_options.pos1:\t%ld\n", cpm_options.lseek_options.pos1);
+    printf("lseek_options.pos2:\t%ld\n", cpm_options.lseek_options.pos2);
+    printf("lseek_options.num:\t%lu\n", cpm_options.lseek_options.num);
+    
+    printf("directory:\t%d\n", cpm_options.directory);
+    printf("delete_opt:\t%d\n", cpm_options.delete_opt);
+    printf("chmod:\t%d\n", cpm_options.chmod);
+    printf("chmod_mode:\t%d\n", cpm_options.chmod_mode);
+    printf("inode:\t%d\n", cpm_options.inode);
+    printf("inode_number:\t%lu\n", cpm_options.inode_number);
+    printf("umask:\t%d\n", cpm_options.umask);
+    printf("umask_mode:\t%o\n", (unsigned int)cpm_options.umask_mode);
+    printf("link:\t%d\n", cpm_options.link);
+    printf("truncate:\t%d\n", cpm_options.truncate);
+    printf("truncate_size:\t%ld\n", cpm_options.truncate_size);
+    printf("sparse:\t%d\n", cpm_options.sparse);
 
-    // premenne pre argumenty prepinacov
-    long size;
-    char x;
-    long pos1, pos2, num;
-
-    // spracovanie prepinacov
-    while (1)
-    {
-        int this_option_optind = optind ? optind : 1;
-        int option_index = 0;
-
-        // viac informacii o spracovani jednotlivych moznosti - pozri - // man 3
-        // getopt
-        
-        static struct option long_options[] = {
-            { "fast",      no_argument,       0, 'f' },
-            { "slow",      no_argument,       0, 's' }, 
-            { "create",    required_argument, 0, 'c' },
-            { "overwrite", no_argument,       0, 'o' }, 
-            { "append",    no_argument,       0, 'a' }, 
-            { "lseek",     required_argument, 0, 'l' }, 
-            { "directory", required_argument, 0, 'D' }, 
-            { "delete",    no_argument,       0, 'd' },
-            { "chmod",     required_argument, 0, 'm' }, 
-            { "inode",     required_argument, 0, 'i' },
-            { "umask",     required_argument, 0, 'u' }, 
-            { "link",      no_argument,       0, 'K' },
-            { "truncate",  required_argument, 0, 't' },
-            { "sparse",    no_argument,       0, 'S' },
-            { 0,             0,               0,  0  },
-        };
-        c = getopt_long(argc, argv, "sft:l:", // doplnte dalsie volby (options)
-            // podla zadania - aj ci su s argumentom
-            long_options, &option_index);
-        if (c == -1)
-            break; // ziadne dalsie volby
-        switch (c)
-        {
-            case 's': // spracovanie - moznost 's'
-                printf("prepinac - s\n");
-                // pokracovanie spracovania
-                break;
-            case 'f': // spracovanie - moznosť 'f'
-                printf("prepinac - f\n");
-                // pokracovanie spracovania
-                break;
-            case 't': // spracovanie - moznost 't'
-                printf("prepinac - t\n");
-                size = atoi(optarg); // spracovanie argumentu danej volby (option)
-                printf("size=%ld\n", size);
-                // pokracovanie spracovania
-                break;
-            case 'l': // spracovanie - option 'l'
-                printf("prepinac - l\n");
-                sscanf(optarg, "%c,%ld,%ld,%ld", &x, &pos1, &pos2,
-                    &num); // spracovanie argumentu danej voľby (option)
-                printf("x=%c\n", x);
-                printf("pos1=%ld\n", pos1);
-                printf("pos2=%ld\n", pos2);
-                printf("num=%ld\n", num);
-                // ...    			   pokracovanie spracovania
-                break;
-
-            // analogickym sposobom osetrite dalsie volby
-            // ....
-            // vsetky volby osetrene
-
-            // osetrenie chyby spracovania prepinacov
-            case '?':
-            //  break;
-            default:
-                fprintf(stderr, "Usage: %s [s|f] [-t size] [-l x,pos1,pos2,num] \n", argv[0]);
-                exit(EXIT_FAILURE);
-        }
+    
+    //-------------------------------------------------------------------
+    // Osetrenie prepinacov pred kopirovanim
+    //-------------------------------------------------------------------
+    
+    if (cpm_options.fast && cpm_options.slow) {
+        FatalError(' ', "CHYBA PREPINACOV", 20); // TODO znak pre prefix
     }
-    // koniec spracovanie prepinacov
-    // *****************************************************************************************************************
-
-    //*******************************************
-    //   Sem pridajte kod pre osetrenie prepinacov pred kopirovanim
-    //******************************************
-
-    //*******************************************
-    //   Sem pridajte kod pre kopirovanie suborov
-    //******************************************
-
-    //*******************************************
-    //   Sem pridajte kod pre vypis adresara
-    //******************************************
-
-    //*******************************************
-    //   Sem pridajte kod pre osetrenie prepinacov po kopirovani
-    //******************************************
+    
+    // TODO Nezabudnut dalsie kontroly kombinacii prepinacov ...
+    
+    //-------------------------------------------------------------------
+    // Kopirovanie suborov
+    //-------------------------------------------------------------------
+    
+    // TODO Implementovat kopirovanie suborov
+    
+    // cpm_options.infile
+    // cpm_options.outfile
+    
+    //-------------------------------------------------------------------
+    // Vypis adresara
+    //-------------------------------------------------------------------
+    
+    if (cpm_options.directory) {
+        // TODO Implementovat vypis adresara
+    }
+        
+    //-------------------------------------------------------------------
+    // Osetrenie prepinacov po kopirovani
+    //-------------------------------------------------------------------
+    
+    // TODO Implementovat osetrenie prepinacov po kopirovani
+    
+    return 0;
 }
 

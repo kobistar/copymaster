@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -std=gnu11 -Wall -Wextra
 LDFLAGS =
-SOURCES = copymaster.c
-HEADERS = 
-OBJDIR = build
+SOURCES = copymaster.c util.c
+HEADERS = util.h
+OBJDIR = obj
 EXECUTABLE = copymaster
 
 _OBJ = $(SOURCES:.c=.o)
@@ -13,7 +13,7 @@ _DEPS = $(HEADERS)
 DEPS = $(_DEPS)
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 
-$(OBJDIR)/%.o: %.c %.h
+$(OBJDIR)/%.o: %.c $(DEPS) directories
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(EXECUTABLE): $(OBJ) 
