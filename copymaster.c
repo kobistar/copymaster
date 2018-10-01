@@ -44,12 +44,11 @@ int main(int argc, char* argv[])
     
     printf("umask:\t%d\n", cpm_options.umask);
     for(unsigned int i=0; i<kUMASK_OPTIONS_MAX_SZ; ++i) {
-        if (cpm_options.umask_options[i][0] != 0) {
-            printf("umask_options[%u]: %s\n", i, cpm_options.umask_options[i]);
-        }
-        else {
+        if (cpm_options.umask_options[i][0] == 0) {
+            // dosli sme na koniec zoznamu nastaveni umask
             break;
         }
+        printf("umask_options[%u]: %s\n", i, cpm_options.umask_options[i]);
     }
     
     printf("link:          %d\n", cpm_options.link);
