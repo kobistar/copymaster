@@ -1,17 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <errno.h>
 #include <string.h>
 
-#include "misc.h"
+#include "options.h"
 
 
-struct CopymasterOptions ParseCopymaterOptions(int argc, char *argv[]) {
-    
+struct CopymasterOptions ParseCopymaterOptions(int argc, char *argv[]) 
+{
     extern int optind;
     extern char* optarg;
 
@@ -161,10 +159,3 @@ struct CopymasterOptions ParseCopymaterOptions(int argc, char *argv[]) {
     return cpm_options;
 }
 
-void FatalError(char c, const char* msg, int exit_status)
-{
-    fprintf(stderr, "%c:%d\n", c, errno); 
-    fprintf(stderr, "%c:%s\n", c, strerror(errno));
-    fprintf(stderr, "%c:%s\n", c, msg);
-    exit(exit_status);
-}

@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 
-#include "misc.h"
+#include "options.h"
+
+
+void FatalError(char c, const char* msg, int exit_status);
 
 
 int main(int argc, char* argv[])
@@ -88,5 +93,14 @@ int main(int argc, char* argv[])
     // TODO Implementovat osetrenie prepinacov po kopirovani
     
     return 0;
+}
+
+
+void FatalError(char c, const char* msg, int exit_status)
+{
+    fprintf(stderr, "%c:%d\n", c, errno); 
+    fprintf(stderr, "%c:%s\n", c, strerror(errno));
+    fprintf(stderr, "%c:%s\n", c, msg);
+    exit(exit_status);
 }
 

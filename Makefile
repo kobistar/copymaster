@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -std=gnu11 -Wall -Wextra
 LDFLAGS =
-SOURCES = copymaster.c misc.c
-HEADERS = misc.h
+SOURCES = copymaster.c options.c
+HEADERS = options.h
 OBJDIR = obj
 EXECUTABLE = copymaster
 
