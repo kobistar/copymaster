@@ -18,7 +18,7 @@ Spôsob práce s týmito členskými premennými je demonštrovaný vo funkcii `
 Pre kontrolu, či v parametroch príkazového riadku je nastavený prepínač, použite členskú premennú, ktorá má názov identický s názvom prepínača v zadaní úlohy. 
 Výnimkou je prepínač `--delete` (v krátkej forme `-d`), ktorý je asociovaný s členskou premennou `delete_opt`.
 
-Prepínače, ktoré majú nejakú aj vstupnú hodnotu (`--create`, `--lseek`, `--chmod`, `--umask`, `--truncate`) majú v štruktúre `CopymasterOptions` asociovaný dodatočnú členskú premennú. 
+Prepínače, ktoré majú aj nejakú vstupnú hodnotu (`--create`, `--lseek`, `--chmod`, `--umask`, `--truncate`), majú v štruktúre `CopymasterOptions` asociovanú dodatočnú členskú premennú. 
 Použitie týchto premenných by malo byť ľahko pochopiteľné. 
 
 Mále nejasnoti môžu byť pri členskej premennej `umask_options`. 
