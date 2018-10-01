@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "misc.h"
 
@@ -57,7 +58,8 @@ int main(int argc, char* argv[])
     //-------------------------------------------------------------------
     
     if (cpm_options.fast && cpm_options.slow) {
-        FatalError(' ', "CHYBA PREPINACOV", 20); // TODO znak pre prefix
+        fprintf(stderr, "CHYBA PREPINACOV\n"); 
+        exit(EXIT_FAILURE);
     }
     
     // TODO Nezabudnut dalsie kontroly kombinacii prepinacov ...
