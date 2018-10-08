@@ -13,19 +13,17 @@ _DEPS = $(HEADERS)
 DEPS = $(_DEPS)
 OBJ = $(patsubst %,$(OBJDIR)/%,$(_OBJ))
 
-$(OBJDIR)/%.o: %.c $(DEPS) directories
+$(OBJDIR)/%.o: %.c $(DEPS)
+	mkdir -p $(OBJDIR)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(EXECUTABLE): $(OBJ) 
+$(EXECUTABLE): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-directories:
-	mkdir -p $(OBJDIR)
-	
 all: $(EXECUTABLE)
 
 clean:
 	rm -f $(OBJDIR)/*.o $(EXECUTABLE)
 	if [ -d $(OBJDIR) ]; then rmdir $(OBJDIR); fi
-	
+
 .PHONY: all clean
