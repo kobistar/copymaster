@@ -8,7 +8,7 @@
 #include "options.h"
 
 
-struct CopymasterOptions ParseCopymaterOptions(int argc, char *argv[]) 
+struct CopymasterOptions ParseCopymasterOptions(int argc, char *argv[]) 
 {
     extern int optind;
     extern char* optarg;
