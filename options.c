@@ -75,6 +75,7 @@ struct CopymasterOptions ParseCopymasterOptions(int argc, char *argv[])
                 cpm_options.append = 1;
                 break;
             case 'l': 
+                cpm_options.lseek = 1;
                 i = sscanf(optarg, "%c,%ld,%ld,%llu", &x, &pos1, &pos2, &num);
                 if (i < 4) {
                     fprintf(stderr, usage_error_msg_format, argv[0], "lseek - failed to scan 4 values");
