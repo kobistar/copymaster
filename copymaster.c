@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
     // Vypis hodnot prepinacov odstrante z finalnej verzie
     
-    PrintCopymasterOptions(&cpm_options);
+    //PrintCopymasterOptions(&cpm_options);
     
     //-------------------------------------------------------------------
     // Osetrenie prepinacov pred kopirovanim
@@ -38,24 +38,32 @@ int main(int argc, char* argv[])
     //-------------------------------------------------------------------
     // Kopirovanie suborov
     //-------------------------------------------------------------------
-    int des = 0;
-    int des2 = 0;
-    char buf;
-    int n;
-    if(argc <= 3){
-        des = open (cpm_options.infile, O_RDONLY);
-        des2 = open(cpm_options.outfile, O_CREAT|O_WRONLY);
-        while ((n = read(des,&buf,1)) > 0){
-            write(des2, &buf,n);
-        }
-        if(des2 < 0){
-            printf("noFlag: %d\n",errno);
-            perror("noFlag");
-            printf("noFlag: INA CHYBA\n");  
-        }
-        close(des); 
-        close(des2);
+    /*int des = open("")
+    int des2;
+    char buf[1];
+    
+    while(read(des,buf,1)) > 0){
+        write(des2,buf,1);
     }
+    */
+    struct stat inf;
+    char buf[1];
+    int des = open (cpm_options.infile, O_RDONLY);
+    stat(cpm_options.infile, &inf);
+    int des2 = open(cpm_options.outfile, O_WRONLY|O_CREAT|O_TRUNC, inf.st_mode);
+    
+    while (read(des,buf,1) > 0){
+        printf("%s",buf);
+        write(des2, buf,1);
+    }
+    if(des2 < 0){
+        printf("noFlag: %d\n",errno);
+        perror("noFlag");
+        printf("noFlag: INA CHYBA\n");  
+    }
+    close(des); 
+    close(des2);
+    
 
     
  //umask nastavim na 0000 aby sa "prekrl" defaultny umask
