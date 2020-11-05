@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-
+#include <unistd.h> 
 #include "options.h"
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 void FatalError(char c, const char* msg, int exit_status);
 void PrintCopymasterOptions(struct CopymasterOptions* cpm_options);
@@ -36,7 +38,31 @@ int main(int argc, char* argv[])
     //-------------------------------------------------------------------
     // Kopirovanie suborov
     //-------------------------------------------------------------------
+    int des = 0;
+    int des2 = 0;
+    char buf;
+    int n;
+    if(argc <= 3){
+        des = open (cpm_options.infile, O_RDONLY);
+        des2 = open(cpm_options.outfile, O_CREAT|O_WRONLY);
+        while ((n = read(des,&buf,1)) > 0){
+            write(des2, &buf,n);
+        }
+        if(des2 < 0){
+            printf("noFlag: %d\n",errno);
+            perror("noFlag");
+            printf("noFlag: INA CHYBA\n");  
+        }
+        close(des); 
+        close(des2);
+    }
+
     
+ //umask nastavim na 0000 aby sa "prekrl" defaultny umask
+//subor sa vytvori alebo prepise ak je vytvoreny s pravami infile
+
+//printf("NO FLAG OPT\n");//TEST//TEST//TEST
+  
     // TODO Implementovat kopirovanie suborov
     
     // cpm_options.infile

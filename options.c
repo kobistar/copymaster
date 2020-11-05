@@ -159,4 +159,3 @@ struct CopymasterOptions ParseCopymasterOptions(int argc, char *argv[])
     
     return cpm_options;
 }
-
