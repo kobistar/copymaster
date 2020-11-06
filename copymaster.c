@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <math.h>
 
 void FatalError(char c, const char* msg, int exit_status);
 void PrintCopymasterOptions(struct CopymasterOptions* cpm_options);
