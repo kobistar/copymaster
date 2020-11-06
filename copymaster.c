@@ -102,9 +102,9 @@ int main(int argc, char* argv[])
         char buffer[count];
         buffer[count] = '\0';
         lseek(des0,0L,SEEK_SET);
-        for(int i = 0; i <= count; i++){
+        for(int i = 0; i < count; i++){
             read( des0,buffer,1);    //nacitanie celeho originalu do buf
-            write(desC,buffer,count);       //prepisanie celeho buf do kopie
+            write(desC,buffer,1);       //prepisanie celeho buf do kopie
         }
         if(desC < 0){
             printf("INA CHYBA");
