@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
         
         int des0 = open (cpm_options.infile, O_RDONLY);
         stat(cpm_options.infile, &inf);
-        int desC = open(cpm_options.outfile, O_EXCL | O_CREAT | O_RDWR, inf.st_mode);
+        int desC = open(cpm_options.outfile, O_EXCL | O_RDWR, inf.st_mode);
         if(desC < 0){
             printf("c: %d\n",errno);
             perror("c");
