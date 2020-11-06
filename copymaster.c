@@ -77,20 +77,15 @@ int main(int argc, char* argv[])
         count = lseek(des0,0L,SEEK_END); //zistim pocet znakov originalu
         char buffer[count];
         buffer[count] = '\0';
-        //printf("count buffer  : %d\n",count);
-        read( des0 ,&buffer ,count);    //nacitanie celeho originalu do buf
-        //printf("fast buffer 1 : %s\n",buffer);
-        write(desC,&buffer ,count);       //prepisanie celeho buf do kopie
-        //printf("fast buffer 2 : %s\n",buffer);
-        /*
-        if(desC < 0){
-            printf("INA CHYBA");
-        }
-        */
+        lseek(des0,0L,SEEK_SET);
+        
+        read( des0,buffer,count);    //nacitanie celeho originalu do buf
+        write(desC,buffer,count);       //prepisanie celeho buf do kopie
+        
         close(des0);
         close(desC);
-        //printf("FAST\n");//TEST
     }
+    
     // TODO Implementovat kopirovanie suborov
 
     // cpm_options.infile
