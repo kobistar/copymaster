@@ -81,7 +81,11 @@ int main(int argc, char* argv[])
         
         read( des0,buffer,count);    //nacitanie celeho originalu do buf
         write(desC,buffer,count);       //prepisanie celeho buf do kopie
-        
+        if(desC < 0){
+            printf("INA CHYBA");
+            close(des0);
+            close(desC);
+        }
         close(des0);
         close(desC);
     }
@@ -102,9 +106,15 @@ int main(int argc, char* argv[])
             read( des0,buffer,1);    //nacitanie celeho originalu do buf
             write(desC,buffer,count);       //prepisanie celeho buf do kopie
         }
+        if(desC < 0){
+            printf("INA CHYBA");
+            close(des0);
+            close(desC);
+        }
         close(des0);
         close(desC);
     }
+    
     // TODO Implementovat kopirovanie suborov
 
     // cpm_options.infile
