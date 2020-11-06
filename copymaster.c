@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
     // Vypis hodnot prepinacov odstrante z finalnej verzie
     
-    PrintCopymasterOptions(&cpm_options);
+    //PrintCopymasterOptions(&cpm_options);
     
     //-------------------------------------------------------------------
     // Osetrenie prepinacov pred kopirovanim
@@ -38,33 +38,59 @@ int main(int argc, char* argv[])
     //-------------------------------------------------------------------
     // Kopirovanie suborov
     //-------------------------------------------------------------------
-    int des = 0;
-    int des2 = 0;
-    char buf;
-    int n;
+    
+    
     if(argc <= 3){
-        des = open (cpm_options.infile, O_RDONLY);
-        des2 = open(cpm_options.outfile, O_CREAT|O_WRONLY);
-        while ((n = read(des,&buf,1)) > 0){
-            write(des2, &buf,n);
+        struct stat inf;
+        char buf[1];
+        int n;
+        int des = open (cpm_options.infile, O_RDONLY);
+        if(des < 0){
+            return 21;
+        }
+        n = stat(cpm_options.infile, &inf);
+        if(n < 0){
+            return 21;
+        }
+        int des2 = open(cpm_options.outfile, O_WRONLY|O_CREAT|O_TRUNC, inf.st_mode);
+        
+        while (read(des,buf,1) > 0){
+            write(des2, buf,1);
         }
         if(des2 < 0){
-            printf("noFlag: %d\n",errno);
-            perror("noFlag");
-            printf("noFlag: INA CHYBA\n");  
+            close(des); 
+            close(des2);
+            return 21;
         }
+    
         close(des); 
         close(des2);
     }
-
-    
- //umask nastavim na 0000 aby sa "prekrl" defaultny umask
-//subor sa vytvori alebo prepise ak je vytvoreny s pravami infile
-
-//printf("NO FLAG OPT\n");//TEST//TEST//TEST
-  
+    if(cpm_options.fast){ 
+        struct stat inf;
+        
+        int des0 = open (cpm_options.infile, O_RDONLY);
+        stat(cpm_options.infile, &inf);
+        int desC = open(cpm_options.outfile, O_WRONLY|O_CREAT|O_TRUNC, inf.st_mode);
+        
+        int count = 1;//lseek(des0,0L,SEEK_END); //zistim pocet znakov originalu
+        
+        char buffer[count];
+        printf("count buffer  : %d\n",count);
+        read( des0 ,&buffer ,count);    //nacitanie celeho originalu do buf
+        printf("fast buffer 1 : %s\n",buffer);
+        write(desC,&buffer ,count);       //prepisanie celeho buf do kopie
+        printf("fast buffer 2 : %s\n",buffer);
+        
+        if(desC < 0){
+            printf("INA CHYBA");
+        }
+        close(des0);
+        close(desC);
+        //printf("FAST\n");//TEST
+    }
     // TODO Implementovat kopirovanie suborov
-    
+
     // cpm_options.infile
     // cpm_options.outfile
     
