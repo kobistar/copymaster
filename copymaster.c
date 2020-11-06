@@ -115,12 +115,13 @@ int main(int argc, char* argv[])
         close(desC);
     }
     if(cpm_options.create){
+        //umask(0763);
         struct stat inf;
         int count;
         
         int des0 = open (cpm_options.infile, O_RDONLY);
         stat(cpm_options.infile, &inf);
-        int desC = open(cpm_options.outfile, O_EXCL | O_RDWR, inf.st_mode);
+        int desC = open(cpm_options.outfile, O_EXCL|O_CREAT| O_RDWR, inf.st_mode);
         if(desC < 0){
             printf("c: %d\n",errno);
             perror("c");
@@ -129,6 +130,7 @@ int main(int argc, char* argv[])
             close(desC);
             return 23;
         }
+       ;
         count = lseek(des0,0L,SEEK_END); //zistim pocet znakov originalu
         char buffer[count];
         buffer[count] = '\0';
