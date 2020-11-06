@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
         char buffer[count];
         buffer[count] = '\0';
         //printf("count buffer  : %d\n",count);
-        read( des0 ,&buffer ,3);    //nacitanie celeho originalu do buf
+        read( des0 ,&buffer ,count);    //nacitanie celeho originalu do buf
         //printf("fast buffer 1 : %s\n",buffer);
         write(desC,&buffer ,count);       //prepisanie celeho buf do kopie
         //printf("fast buffer 2 : %s\n",buffer);
