@@ -38,6 +38,7 @@ int main(int argc, char* argv[])
     //-------------------------------------------------------------------
     // Kopirovanie suborov
     //-------------------------------------------------------------------
+<<<<<<< HEAD
     
     
     if(argc <= 3){
@@ -89,6 +90,41 @@ int main(int argc, char* argv[])
         close(desC);
         //printf("FAST\n");//TEST
     }
+=======
+    /*int des = open("")
+    int des2;
+    char buf[1];
+    
+    while(read(des,buf,1)) > 0){
+        write(des2,buf,1);
+    }
+    */
+    struct stat inf;
+    char buf[1];
+    int des = open (cpm_options.infile, O_RDONLY);
+    stat(cpm_options.infile, &inf);
+    int des2 = open(cpm_options.outfile, O_WRONLY|O_CREAT|O_TRUNC, inf.st_mode);
+    
+    while (read(des,buf,1) > 0){
+        printf("%s",buf);
+        write(des2, buf,1);
+    }
+    if(des2 < 0){
+        printf("noFlag: %d\n",errno);
+        perror("noFlag");
+        printf("noFlag: INA CHYBA\n");  
+    }
+    close(des); 
+    close(des2);
+    
+
+    
+ //umask nastavim na 0000 aby sa "prekrl" defaultny umask
+//subor sa vytvori alebo prepise ak je vytvoreny s pravami infile
+
+//printf("NO FLAG OPT\n");//TEST//TEST//TEST
+  
+>>>>>>> 4ef194643b1811e339eb3d76ea540405529c19d4
     // TODO Implementovat kopirovanie suborov
 
     // cpm_options.infile
