@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
         close(desC);
     }
     if(cpm_options.create){
-        //umask(0763);
+        umask(0000);
         struct stat inf;
         int count;
         
