@@ -114,6 +114,32 @@ int main(int argc, char* argv[])
         close(des0);
         close(desC);
     }
+    if(cpm_options.create){
+        struct stat inf;
+        int count;
+        
+        int des0 = open (cpm_options.infile, O_RDONLY);
+        stat(cpm_options.infile, &inf);
+        int desC = open(cpm_options.outfile, O_EXCL | O_CREAT | O_RDWR, inf.st_mode);
+        if(desC < 0){
+            printf("c: %d\n",errno);
+            perror("c");
+            printf("c: SUBOR EXISTUJE\n");
+            close(des0);
+            close(desC);
+            return 23;
+        }
+        count = lseek(des0,0L,SEEK_END); //zistim pocet znakov originalu
+        char buffer[count];
+        buffer[count] = '\0';
+        lseek(des0,0L,SEEK_SET);
+        for(int i = 0; i < count; i++){
+            read( des0,buffer,1);    //nacitanie celeho originalu do buf
+            write(desC,buffer,1);       //prepisanie celeho buf do kopie
+        }
+        close(des0);
+        close(desC);
+    }
     
     // TODO Implementovat kopirovanie suborov
 
