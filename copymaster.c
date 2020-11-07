@@ -41,6 +41,27 @@ int main(int argc, char* argv[])
  stat(sFile,&stat_buff);
  int fd1,fd2;  //f1 In f2 OUT
  
+
+
+if(cpm_options.link == 1){
+    fd1 = open(sFile,O_RDONLY);
+        if (fd1 == -1){
+            if (errno == 2) {
+                FatalError(errno, "-:VSTUPNY SUBOR NEEXISTUJE\n", 30);
+            } else {
+                FatalError(errno, "-:INA CHYBA\n", 30);
+            }
+        }
+        close(fd1);
+    int link_tmp;
+    link_tmp = link(sFile,dFile);
+        if(link_tmp < 0){
+            FatalError(errno, "-:VYSTUPNY SUBOR NEVYTVORENY\n", 23);
+        }
+        exit(0);
+    }
+
+ 
  if ((fd1=open(sFile,  O_RDONLY)) == -1){
         if (errno == 2) {
             FatalError(errno, "-:VSTUPNY SUBOR NEEXISTUJE\n", 21);
@@ -48,6 +69,29 @@ int main(int argc, char* argv[])
             FatalError(errno, "-:INA CHYBA\n", 21);
         }
     }
+
+
+ if(cpm_options.append){
+    fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
+        if(fd2 == -1){
+            if (errno == 2) {
+                FatalError(errno, "-:SUBOR NEEXISTUJE\n", 23);
+            } else {
+                FatalError(errno, "-:INA CHYBA\n", 22);
+            }
+        }
+    }
+else if (cpm_options.overwrite == 1){
+    fd2  = open(dFile, O_WRONLY|O_TRUNC, stat_buff.st_mode);
+        if(fd2 == -1){
+            if (errno == 2) {
+                FatalError(errno, "-:SUBOR NEEXISTUJE\n", 24);
+            } else {
+                FatalError(errno, "-:INA CHYBA\n", 21);
+            }
+        }
+    }
+
 
 else if(cpm_options.create == 1){
 fd2 = open(dFile, O_EXCL|O_CREAT|O_WRONLY|O_TRUNC, cpm_options.create_mode);
@@ -59,6 +103,7 @@ fd2 = open(dFile, O_EXCL|O_CREAT|O_WRONLY|O_TRUNC, cpm_options.create_mode);
             }
         }
     }
+
 else {
     fd2 = open(dFile,O_WRONLY|O_CREAT|O_TRUNC, stat_buff.st_mode);
         if(fd2 == -1){
@@ -88,7 +133,6 @@ if(cpm_options.slow == 1){
             write(fd2, &buffer, 1);
         }
     }
-
 
   close(fd1);
   close(fd2);
