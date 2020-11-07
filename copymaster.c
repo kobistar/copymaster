@@ -22,9 +22,9 @@ int main(int argc, char* argv[]){
 
     struct CopymasterOptions cpm_options = ParseCopymasterOptions(argc, argv);
     
-    char *dFile=argv[argc-1];       //outfile
-    char *sFile=argv[argc-2];       //infile
-    struct stat stat_buff;
+    char *dFile=argv[argc-1];       //outfile -do filename si ulozime nazov copy suboru
+    char *sFile=argv[argc-2];       //infile - do filename si ulozime nazov orig suboru
+    struct stat stat_buff,stat_buff2;
     
     //nasttaveniai prepinacov 
     if (cpm_options.create + cpm_options.append + cpm_options.overwrite  > 1){
@@ -37,7 +37,6 @@ int main(int argc, char* argv[]){
         exit(EXIT_FAILURE);
     }
     
-    stat(sFile,&stat_buff);
     int fd1,fd2;  //f1 In f2 OUT
     
     if(cpm_options.link == 1){
@@ -70,6 +69,21 @@ int main(int argc, char* argv[]){
         }
     }
     
+    if(cpm_options.inode == 1){
+        fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
+        
+        stat(sFile,&stat_buff);
+        stat(dFile,&stat_buff2);
+        
+        if(stat_buff.st_ino != stat_buff2.st_ino){  //pri -i kopiruje ak plati podmienka
+            
+            FatalError(errno,"-:ZLY INODE\n",27);
+        }
+        if(!S_ISREG(stat_buff.st_mode)){ //a infile je obycajny subor
+            FatalError(errno,"-:ZLY TYP VSTUPNEHO SUBORU\n",27);
+    
+        }    
+    }
     if(cpm_options.append){
         fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
         
@@ -123,7 +137,9 @@ int main(int argc, char* argv[]){
     int bufSize = stat_buff.st_size;
     int n;
     char buffer[(int) bufSize];  
+    
     if(cpm_options.slow == 1){
+        
         for(int i = 0; i < bufSize; i++){
             read(fd1,&buffer,1);
             write(fd2,&buffer,1);
@@ -146,7 +162,7 @@ int main(int argc, char* argv[]){
     if(cpm_options.delete_opt == 1){
         if(remove(cpm_options.infile) < 0){             //zmazanie originalu az po zatvoreni
             if (errno == 2) {
-                FatalError(errno, "-:VSTUPNY SUBOR NEEXISTUJE\n", 26);
+                FatalError(errno, "-:SUBOR NEBOL ZMAYANY\n", 26);
             }
             else{
                 FatalError(errno, "-:INA CHYBA\n", 26);
