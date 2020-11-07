@@ -145,8 +145,12 @@ int main(int argc, char* argv[]){
     
     if(cpm_options.delete_opt == 1){
         if(remove(cpm_options.infile) < 0){             //zmazanie originalu az po zatvoreni
-            printf("SUBOR NEBOL ZMAZANY\n");
-            return 26;
+            if (errno == 2) {
+                FatalError(errno, "-:VSTUPNY SUBOR NEEXISTUJE\n", 26);
+            }
+            else{
+                FatalError(errno, "-:INA CHYBA\n", 26);
+            }
         }
     }
 }
