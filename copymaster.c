@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <unistd.h> 
-#include "options.h"
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "options.h"
+
 
 void FatalError(char c, const char* msg, int exit_status);
 void PrintCopymasterOptions(struct CopymasterOptions* cpm_options);
@@ -14,157 +15,76 @@ void PrintCopymasterOptions(struct CopymasterOptions* cpm_options);
 
 int main(int argc, char* argv[])
 {
+
+    if(argc < 3){
+        printf("ZADAJ VSTUPNY A VYSTUPNY SUBOR\n");
+        exit(20);
+    }
+
     struct CopymasterOptions cpm_options = ParseCopymasterOptions(argc, argv);
-
-    //-------------------------------------------------------------------
-    // Kontrola hodnot prepinacov
-    //-------------------------------------------------------------------
-
-    // Vypis hodnot prepinacov odstrante z finalnej verzie
     
-    //PrintCopymasterOptions(&cpm_options);
+    char *dFile=argv[argc-1];       //outfile
+    char *sFile=argv[argc-2];       //infile
+    struct stat stat_buff;
     
-    //-------------------------------------------------------------------
-    // Osetrenie prepinacov pred kopirovanim
-    //-------------------------------------------------------------------
-    
-    if (cpm_options.fast && cpm_options.slow) {
-        fprintf(stderr, "CHYBA PREPINACOV\n"); 
+    //nasttaveniai prepinacov 
+    if (cpm_options.create + cpm_options.append + cpm_options.overwrite  > 1){
+        fprintf(stderr, "CHYBA PREPINACOV\n");
         exit(EXIT_FAILURE);
     }
-    
-    // TODO Nezabudnut dalsie kontroly kombinacii prepinacov ...
-    
-    //-------------------------------------------------------------------
-    // Kopirovanie suborov
-    //-------------------------------------------------------------------
-    
-    
-    if(argc <= 3){
-        struct stat inf;
-        char buf[1];
-        int n;
-        int des = open (cpm_options.infile, O_RDONLY);
-        if(des < 0){
-            return 21;
-        }
-        n = stat(cpm_options.infile, &inf);
-        if(n < 0){
-            return 21;
-        }
-        int des2 = open(cpm_options.outfile, O_WRONLY|O_CREAT|O_TRUNC, inf.st_mode);
-        
-        while (read(des,buf,1) > 0){
-            write(des2, buf,1);
-        }
-        if(des2 < 0){
-            close(des); 
-            close(des2);
-            return 21;
-        }
-    
-        close(des); 
-        close(des2);
-    }
-    if(cpm_options.fast){ 
-        struct stat inf;
-        int count;
-        
-        int des0 = open (cpm_options.infile, O_RDONLY);
-        stat(cpm_options.infile, &inf);
-        int desC = open(cpm_options.outfile, O_WRONLY|O_CREAT|O_TRUNC, inf.st_mode);
-        
-        count = lseek(des0,0L,SEEK_END); //zistim pocet znakov originalu
-        char buffer[count];
-        buffer[count] = '\0';
-        lseek(des0,0L,SEEK_SET);
-        
-        read( des0,buffer,count);    //nacitanie celeho originalu do buf
-        write(desC,buffer,count);       //prepisanie celeho buf do kopie
-        if(desC < 0){
-            printf("INA CHYBA");
-            close(des0);
-            close(desC);
-        }
-        close(des0);
-        close(desC);
+
+    if (cpm_options.fast && cpm_options.slow) {
+        fprintf(stderr, "CHYBA PREPINACOV\n");
+        exit(EXIT_FAILURE);
     }
 
-    if(cpm_options.slow){ 
-        struct stat inf;
-        int count;
-        
-        int des0 = open (cpm_options.infile, O_RDONLY);
-        stat(cpm_options.infile, &inf);
-        int desC = open(cpm_options.outfile, O_WRONLY|O_CREAT|O_TRUNC, inf.st_mode);
-        
-        count = lseek(des0,0L,SEEK_END); //zistim pocet znakov originalu
-        char buffer[count];
-        buffer[count] = '\0';
-        lseek(des0,0L,SEEK_SET);
-        for(int i = 0; i < count; i++){
-            read( des0,buffer,1);    //nacitanie celeho originalu do buf
-            write(desC,buffer,1);       //prepisanie celeho buf do kopie
+ stat(sFile,&stat_buff);
+ int fd1,fd2;  //f1 In f2 OUT
+ 
+else if(cpm_options.create == 1){
+fd2 = open(dFile, O_EXCL|O_CREAT|O_WRONLY|O_TRUNC, cpm_options.create_mode);
+    if(fd2 == -1){
+            if (errno == 2) {
+                FatalError(errno, "-:SUBOR EXISTUJE\n", 23);
+            } else {
+                FatalError(errno, "-:INA CHYBA\n", 23);
+            }
         }
-        if(desC < 0){
-            printf("INA CHYBA");
-            close(des0);
-            close(desC);
-        }
-        close(des0);
-        close(desC);
     }
-    if(cpm_options.create){
-        umask(0000);
-        //struct stat inf;
-        int count;
-        
-        int des0 = open (cpm_options.infile, O_RDONLY);
-        //stat(cpm_options.infile, &inf);
-        int desC = open(cpm_options.outfile, O_EXCL|O_CREAT| O_RDWR, cpm_options.create_mode);
-        if(desC < 0){
-            printf("c: %d\n",errno);
-            perror("c");
-            printf("c: SUBOR EXISTUJE\n");
-            close(des0);
-            close(desC);
-            return 23;
+else {
+    fd2 = open(dFile,O_WRONLY|O_CREAT|O_TRUNC, stat_buff.st_mode);
+        if(fd2 == -1){
+            if (errno == 2) {
+                FatalError(errno, "-:SUBOR EXISTUJE\n", 23);
+            } else {
+                FatalError(errno, "-:INA CHYBA\n", 21);
+            }
         }
-       
-        count = lseek(des0,0L,SEEK_END); //zistim pocet znakov originalu
-        char buffer[count];
-        buffer[count] = '\0';
-        lseek(des0,0L,SEEK_SET);
-        for(int i = 0; i < count; i++){
-            read( des0,buffer,1);    //nacitanie celeho originalu do buf
-            write(desC,buffer,1);       //prepisanie celeho buf do kopie
-        }
-        close(des0);
-        close(desC);
     }
-    
-    // TODO Implementovat kopirovanie suborov
 
-    // cpm_options.infile
-    // cpm_options.outfile
-    
-    //-------------------------------------------------------------------
-    // Vypis adresara
-    //-------------------------------------------------------------------
-    
-    if (cpm_options.directory) {
-        // TODO Implementovat vypis adresara
+int bufSize = stat_buff.st_size;
+int n;
+char buffer[(int) bufSize];  
+if(cpm_options.slow == 1){
+   for(int i = 0; i < bufSize; i++){
+        read(fd1,&buffer,1);
+        write(fd2,&buffer,1);
     }
-        
-    //-------------------------------------------------------------------
-    // Osetrenie prepinacov po kopirovani
-    //-------------------------------------------------------------------
-    
-    // TODO Implementovat osetrenie prepinacov po kopirovani
-    
-    return 0;
+}else
+    if(cpm_options.fast == 1){
+        read(fd1,&buffer,bufSize);
+        write(fd2,&buffer,bufSize);   
+    }
+    else {
+            while((n = read(fd1, &buffer, 1)) > 0){
+            write(fd2, &buffer, 1);
+        }
+    }
+
+
+  close(fd1);
+  close(fd2);
 }
-
 
 void FatalError(char c, const char* msg, int exit_status)
 {
