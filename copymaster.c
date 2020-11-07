@@ -13,9 +13,8 @@ void FatalError(char c, const char* msg, int exit_status);
 void PrintCopymasterOptions(struct CopymasterOptions* cpm_options);
 
 
-int main(int argc, char* argv[])
-{
-
+int main(int argc, char* argv[]){
+    
     if(argc < 3){
         printf("ZADAJ VSTUPNY A VYSTUPNY SUBOR\n");
         exit(20);
@@ -37,105 +36,119 @@ int main(int argc, char* argv[])
         fprintf(stderr, "CHYBA PREPINACOV\n");
         exit(EXIT_FAILURE);
     }
-
- stat(sFile,&stat_buff);
- int fd1,fd2;  //f1 In f2 OUT
- 
-
-
-if(cpm_options.link == 1){
-    fd1 = open(sFile,O_RDONLY);
+    
+    stat(sFile,&stat_buff);
+    int fd1,fd2;  //f1 In f2 OUT
+    
+    if(cpm_options.link == 1){
+        fd1 = open(sFile,O_RDONLY);
+        
         if (fd1 == -1){
-            if (errno == 2) {
+            if (errno == 2){
                 FatalError(errno, "-:VSTUPNY SUBOR NEEXISTUJE\n", 30);
-            } else {
+            } 
+            else{
                 FatalError(errno, "-:INA CHYBA\n", 30);
             }
         }
         close(fd1);
-    int link_tmp;
-    link_tmp = link(sFile,dFile);
+        int link_tmp;
+        link_tmp = link(sFile,dFile);
+        
         if(link_tmp < 0){
             FatalError(errno, "-:VYSTUPNY SUBOR NEVYTVORENY\n", 23);
         }
         exit(0);
     }
-
- 
- if ((fd1=open(sFile,  O_RDONLY)) == -1){
+    
+    if((fd1=open(sFile,  O_RDONLY)) == -1){
         if (errno == 2) {
             FatalError(errno, "-:VSTUPNY SUBOR NEEXISTUJE\n", 21);
-        } else {
+        }
+        else{
             FatalError(errno, "-:INA CHYBA\n", 21);
         }
     }
-
-
- if(cpm_options.append){
-    fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
+    
+    if(cpm_options.append){
+        fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
+        
         if(fd2 == -1){
-            if (errno == 2) {
+            if (errno == 2){
                 FatalError(errno, "-:SUBOR NEEXISTUJE\n", 23);
-            } else {
+            } 
+            else{
                 FatalError(errno, "-:INA CHYBA\n", 22);
             }
         }
     }
-else if (cpm_options.overwrite == 1){
-    fd2  = open(dFile, O_WRONLY|O_TRUNC, stat_buff.st_mode);
+    else if (cpm_options.overwrite == 1){
+        fd2  = open(dFile, O_WRONLY|O_TRUNC, stat_buff.st_mode);
+        
         if(fd2 == -1){
             if (errno == 2) {
                 FatalError(errno, "-:SUBOR NEEXISTUJE\n", 24);
-            } else {
+            } 
+            else{
                 FatalError(errno, "-:INA CHYBA\n", 21);
             }
         }
     }
-
-
-else if(cpm_options.create == 1){
-fd2 = open(dFile, O_EXCL|O_CREAT|O_WRONLY|O_TRUNC, cpm_options.create_mode);
-    if(fd2 == -1){
+    else if(cpm_options.create == 1){
+        fd2 = open(dFile, O_EXCL|O_CREAT|O_WRONLY|O_TRUNC, cpm_options.create_mode);
+        
+        if(fd2 == -1){
             if (errno == 2) {
                 FatalError(errno, "-:SUBOR EXISTUJE\n", 23);
-            } else {
+            }
+            else{
                 FatalError(errno, "-:INA CHYBA\n", 23);
             }
         }
     }
-
-else {
-    fd2 = open(dFile,O_WRONLY|O_CREAT|O_TRUNC, stat_buff.st_mode);
+    
+    else{
+        fd2 = open(dFile,O_WRONLY|O_CREAT|O_TRUNC, stat_buff.st_mode);
+        
         if(fd2 == -1){
             if (errno == 2) {
                 FatalError(errno, "-:SUBOR EXISTUJE\n", 23);
-            } else {
+            }
+            else{
                 FatalError(errno, "-:INA CHYBA\n", 21);
             }
         }
     }
 
-int bufSize = stat_buff.st_size;
-int n;
-char buffer[(int) bufSize];  
-if(cpm_options.slow == 1){
-   for(int i = 0; i < bufSize; i++){
-        read(fd1,&buffer,1);
-        write(fd2,&buffer,1);
-    }
-}else
-    if(cpm_options.fast == 1){
-        read(fd1,&buffer,bufSize);
-        write(fd2,&buffer,bufSize);   
-    }
-    else {
-            while((n = read(fd1, &buffer, 1)) > 0){
-            write(fd2, &buffer, 1);
+    int bufSize = stat_buff.st_size;
+    int n;
+    char buffer[(int) bufSize];  
+    if(cpm_options.slow == 1){
+        for(int i = 0; i < bufSize; i++){
+            read(fd1,&buffer,1);
+            write(fd2,&buffer,1);
         }
     }
-
-  close(fd1);
-  close(fd2);
+    else{
+        if(cpm_options.fast == 1){
+            read(fd1,&buffer,bufSize);
+            write(fd2,&buffer,bufSize);   
+        }
+        else {
+            while((n = read(fd1, &buffer, 1)) > 0){
+                write(fd2, &buffer, 1);
+            }
+        }
+    }
+    close(fd1);
+    close(fd2);
+    
+    if(cpm_options.delete_opt == 1){
+        if(remove(cpm_options.infile) < 0){             //zmazanie originalu az po zatvoreni
+            printf("SUBOR NEBOL ZMAZANY\n");
+            return 26;
+        }
+    }
 }
 
 void FatalError(char c, const char* msg, int exit_status)
