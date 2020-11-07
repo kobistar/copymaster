@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
         fprintf(stderr, "CHYBA PREPINACOV\n");
         exit(EXIT_FAILURE);
     }
-    
+    stat(sFile,&stat_buff);
     int fd1,fd2;  //f1 In f2 OUT
     
     if(cpm_options.link == 1){
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]){
             FatalError(errno, "-:INA CHYBA\n", 21);
         }
     }
-    
+    /*
     if(cpm_options.inode == 1){
         fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
         
@@ -84,6 +84,7 @@ int main(int argc, char* argv[]){
     
         }    
     }
+    */
     if(cpm_options.append){
         fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
         
@@ -162,7 +163,7 @@ int main(int argc, char* argv[]){
     if(cpm_options.delete_opt == 1){
         if(remove(cpm_options.infile) < 0){             //zmazanie originalu az po zatvoreni
             if (errno == 2) {
-                FatalError(errno, "-:SUBOR NEBOL ZMAYANY\n", 26);
+                FatalError(errno, "-:SUBOR NEBOL ZMAZANY\n", 26);
             }
             else{
                 FatalError(errno, "-:INA CHYBA\n", 26);
