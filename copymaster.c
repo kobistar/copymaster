@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
  stat(sFile,&stat_buff);
  int fd1,fd2;  //f1 In f2 OUT
  
-else if(cpm_options.create == 1){
+if(cpm_options.create == 1){
 fd2 = open(dFile, O_EXCL|O_CREAT|O_WRONLY|O_TRUNC, cpm_options.create_mode);
     if(fd2 == -1){
             if (errno == 2) {
