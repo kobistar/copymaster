@@ -194,14 +194,15 @@ int main(int argc, char* argv[]){
         }
     }
     
-    if(cpm_options.truncate == 1){
+   if(cpm_options.truncate == 1){
       
         stat(sFile,&stat_buff);
         
-        if(truncate(sFile,cpm_options.truncate_size)<0){
+        if(truncate(sFile,cpm_options.truncate_size) < 0){
             FatalError(errno,"-: INA CHYBA",31);
         }
-        if(stat_buff.st_ino != cpm_options.truncate_size){
+        long unsigned int x = cpm_options.truncate_size;
+        if(stat_buff.st_ino != x){
             FatalError(errno,"-:Nepodarilo sa zmeniť veľkosť súboru – VSTUPNY SUBOR NEZMENENY\n",31);
         }
     }
