@@ -194,7 +194,7 @@ int main(int argc, char* argv[]){
         }
     }
     
-    if(cpm_options.truncate_size){
+    if(cpm_options.truncate == 1){
       
         stat(sFile,&stat_buff);
         
