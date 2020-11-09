@@ -193,15 +193,20 @@ int main(int argc, char* argv[]){
             }
         }
     }
-    /*
+    
     if(cpm_options.truncate_size){
-        int size = strtol(optarg,NULL,10);
-        stat(sFile,size);
-        if(truncate(fd1,size)<0){
-            printf("t: %d\n",errno);
+      
+        stat(sFile,&stat_buff);
+        
+        if(truncate(sFile,cpm_options.truncate_size)<0){
+            FatalError(errno,"-: INA CHYBA",31);
+        }
+        if(stat_buff.st_ino != cpm_options.inode_number){
+            FatalError(errno,"-:Nepodarilo sa zmeniť veľkosť súboru – VSTUPNY SUBOR NEZMENENY\n",31);
         }
     }
-*/
+    close(fd1);
+    close(fd2);
     if(cpm_options.delete_opt == 1){
         if(remove(cpm_options.infile) < 0){             //zmazanie originalu az po zatvoreni
             if (errno == 2) {
