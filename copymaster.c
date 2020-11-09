@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
     
     if(cpm_options.inode == 1){
        
-        stat(sFile,&stat_buff);
+        //stat(sFile,&stat_buff);
         
         if(stat_buff.st_ino != cpm_options.inode_number){  //pri -i kopiruje ak plati podmienka
             noFlag = 0;
@@ -124,40 +124,29 @@ int main(int argc, char* argv[]){
             }
         }
     }
-    /*
+    
     else if(cpm_options.lseek == 1){
         noFlag = 0;
-        char *lopt = optarg ;
-        char option = lopt[0];
         
-        if(option!= 'b' && option!= 'e' && option!= 'c' && lopt[1]!=','){
-            printf("INA CHYBA\n");
-            return 33;
-        }
-        char pos1[strlen(lopt)];
-        char pos2[strlen(lopt)];
-        long unsigned int i = 2;
-        int position = 0 ;
-        char number[strlen(lopt)];
-        number[position] = '\0';
-        
-        //KOPIROVANIE//
+        int pos1 = cpm_options.lseek_options.pos1;
+        int pos2 = cpm_options.lseek_options.pos2;
+        int num = cpm_options.lseek_options.num;
+        int option = cpm_options.lseek_options.x;
+        char buff[num];
+        printf("option = %d\n",option);
+
         fd2 = open (dFile, O_CREAT | O_RDWR , stat_buff.st_mode);
-        int POS1 = strtol(pos1,NULL,10);
-        int POS2 = strtol(pos2,NULL,10);
-        int NUM  = strtol(number,NULL,10);
-        char buff[NUM] ;
         
-        lseek(fd1,POS1,SEEK_SET);
+        lseek(fd1,pos1,SEEK_SET);
         lseek(fd2,0L,SEEK_SET);
-        read(fd1,buff,NUM);
+        read(fd1,buff,num);
         
-        if(option == 'b' )lseek(fd2,POS2,SEEK_SET);
-        if(option == 'e' )lseek(fd2,POS2,SEEK_END);
-        if(option == 'x' )lseek(fd2,POS2,SEEK_CUR);
+        if(option == 'b' )lseek(fd2,pos2,SEEK_SET);
+        if(option == 'e' )lseek(fd2,pos2,SEEK_END);
+        if(option == 'c' )lseek(fd2,pos2,SEEK_CUR);
         
-        write(fd2,buff,NUM);
-    }*/
+        write(fd2,buff,num);
+    }
     else{
         fd2 = open(dFile,O_WRONLY|O_CREAT|O_TRUNC, stat_buff.st_mode);
         
@@ -194,7 +183,7 @@ int main(int argc, char* argv[]){
         }
     }
     
-   if(cpm_options.truncate == 1){
+    if(cpm_options.truncate == 1){
       
         stat(sFile,&stat_buff);
         
