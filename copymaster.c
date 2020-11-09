@@ -133,7 +133,6 @@ int main(int argc, char* argv[]){
         int num = cpm_options.lseek_options.num;
         int option = cpm_options.lseek_options.x;
         char buff[num];
-        printf("option = %d\n",option);
 
         fd2 = open (dFile, O_CREAT | O_RDWR , stat_buff.st_mode);
         
@@ -186,15 +185,14 @@ int main(int argc, char* argv[]){
     if(cpm_options.truncate == 1){
       
         stat(sFile,&stat_buff);
-        
         if(truncate(sFile,cpm_options.truncate_size) < 0){
             FatalError(errno,"-: INA CHYBA",31);
         }
-        long unsigned int x = cpm_options.truncate_size;
-        if(stat_buff.st_ino != x){
-            FatalError(errno,"-:Nepodarilo sa zmeniť veľkosť súboru – VSTUPNY SUBOR NEZMENENY\n",31);
+        if(stat_buff.st_ino == cpm_options.truncate_size){
+            FatalError(errno,"-:VSTUPNY SUBOR NEZMENENY\n",31);
         }
     }
+
     close(fd1);
     close(fd2);
     if(cpm_options.delete_opt == 1){
