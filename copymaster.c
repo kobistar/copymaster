@@ -131,19 +131,20 @@ int main(int argc, char* argv[]){
         int pos1 = cpm_options.lseek_options.pos1;
         int pos2 = cpm_options.lseek_options.pos2;
         int num = cpm_options.lseek_options.num;
-        int option = cpm_options.lseek_options.x;
+        
         char buff[num];
 
-        fd2 = open (dFile, O_CREAT | O_RDWR , stat_buff.st_mode);
+        fd2 = open (dFile, O_CREAT | O_WRONLY, stat_buff.st_mode);
         
-        lseek(fd1,pos1,SEEK_SET);
-        lseek(fd2,0L,SEEK_SET);
+        if(lseek(fd1,pos1,SEEK_SET) != pos1){
+            FatalError(errno, "-:CHYBA POZICIE infile",33);
+        }
+        if(lseek(fd2,pos2,SEEK_SET) != pos2){
+            FatalError(errno, "-:CHYBA POZICIE oufile",33);
+        }
         read(fd1,buff,num);
         
-        if(option == 'b' )lseek(fd2,pos2,SEEK_SET);
-        if(option == 'e' )lseek(fd2,pos2,SEEK_END);
-        if(option == 'c' )lseek(fd2,pos2,SEEK_CUR);
-        
+       //FatalError(errno, "-:INA CHYBA\n", 33);
         write(fd2,buff,num);
     }
     else{
@@ -188,6 +189,7 @@ int main(int argc, char* argv[]){
         if(truncate(sFile,cpm_options.truncate_size) < 0){
             FatalError(errno,"-: INA CHYBA",31);
         }
+        
         if(stat_buff.st_ino == cpm_options.truncate_size){
             FatalError(errno,"-:VSTUPNY SUBOR NEZMENENY\n",31);
         }
