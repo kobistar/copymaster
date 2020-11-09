@@ -72,9 +72,9 @@ int main(int argc, char* argv[]){
     }
     
     if(cpm_options.inode == 1){
-        
-        fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
-        
+     
+        fd2 = open(dFile, O_CREAT|O_WRONLY, stat_buff.st_mode);
+       
         stat(sFile,&stat_buff);
         
         if(stat_buff.st_ino != cpm_options.inode_number){  //pri -i kopiruje ak plati podmienka
