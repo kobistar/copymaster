@@ -24,7 +24,7 @@ int main(int argc, char* argv[]){
     
     char *dFile=argv[argc-1];       //outfile -do filename si ulozime nazov copy suboru
     char *sFile=argv[argc-2];       //infile - do filename si ulozime nazov orig suboru
-    struct stat stat_buff,stat_buff2;
+    struct stat stat_buff;
     
     //nasttaveniai prepinacov 
     if (cpm_options.create + cpm_options.append + cpm_options.overwrite  > 1){
@@ -38,8 +38,10 @@ int main(int argc, char* argv[]){
     }
     stat(sFile,&stat_buff);
     int fd1,fd2;  //f1 In f2 OUT
+    int noFlag = 1;
     
     if(cpm_options.link == 1){
+        
         fd1 = open(sFile,O_RDONLY);
         
         if (fd1 == -1){
@@ -68,14 +70,14 @@ int main(int argc, char* argv[]){
             FatalError(errno, "-:INA CHYBA\n", 21);
         }
     }
-    /*
+    
     if(cpm_options.inode == 1){
+        
         fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
         
         stat(sFile,&stat_buff);
-        stat(dFile,&stat_buff2);
         
-        if(stat_buff.st_ino != stat_buff2.st_ino){  //pri -i kopiruje ak plati podmienka
+        if(stat_buff.st_ino != cpm_options.inode_number){  //pri -i kopiruje ak plati podmienka
             
             FatalError(errno,"-:ZLY INODE\n",27);
         }
@@ -84,8 +86,8 @@ int main(int argc, char* argv[]){
     
         }    
     }
-    */
     if(cpm_options.append){
+        
         fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
         
         if(fd2 == -1){
@@ -121,7 +123,40 @@ int main(int argc, char* argv[]){
             }
         }
     }
-    
+    /*
+    else if(cpm_options.lseek == 1){
+        noFlag = 0;
+        char *lopt = optarg ;
+        char option = lopt[0];
+        
+        if(option!= 'b' && option!= 'e' && option!= 'c' && lopt[1]!=','){
+            printf("INA CHYBA\n");
+            return 33;
+        }
+        char pos1[strlen(lopt)];
+        char pos2[strlen(lopt)];
+        long unsigned int i = 2;
+        int position = 0 ;
+        char number[strlen(lopt)];
+        number[position] = '\0';
+        
+        //KOPIROVANIE//
+        fd2 = open (dFile, O_CREAT | O_RDWR , stat_buff.st_mode);
+        int POS1 = strtol(pos1,NULL,10);
+        int POS2 = strtol(pos2,NULL,10);
+        int NUM  = strtol(number,NULL,10);
+        char buff[NUM] ;
+        
+        lseek(fd1,POS1,SEEK_SET);
+        lseek(fd2,0L,SEEK_SET);
+        read(fd1,buff,NUM);
+        
+        if(option == 'b' )lseek(fd2,POS2,SEEK_SET);
+        if(option == 'e' )lseek(fd2,POS2,SEEK_END);
+        if(option == 'x' )lseek(fd2,POS2,SEEK_CUR);
+        
+        write(fd2,buff,NUM);
+    }*/
     else{
         fd2 = open(dFile,O_WRONLY|O_CREAT|O_TRUNC, stat_buff.st_mode);
         
@@ -151,15 +186,21 @@ int main(int argc, char* argv[]){
             read(fd1,&buffer,bufSize);
             write(fd2,&buffer,bufSize);   
         }
-        else {
+        if(noFlag  == 1){
             while((n = read(fd1, &buffer, 1)) > 0){
                 write(fd2, &buffer, 1);
             }
         }
     }
-    close(fd1);
-    close(fd2);
-    
+    /*
+    if(cpm_options.truncate_size){
+        int size = strtol(optarg,NULL,10);
+        stat(sFile,size);
+        if(truncate(fd1,size)<0){
+            printf("t: %d\n",errno);
+        }
+    }
+*/
     if(cpm_options.delete_opt == 1){
         if(remove(cpm_options.infile) < 0){             //zmazanie originalu az po zatvoreni
             if (errno == 2) {
