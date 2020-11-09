@@ -201,7 +201,7 @@ int main(int argc, char* argv[]){
         if(truncate(sFile,cpm_options.truncate_size)<0){
             FatalError(errno,"-: INA CHYBA",31);
         }
-        if(stat_buff.st_ino != cpm_options.inode_number){
+        if(stat_buff.st_ino != cpm_options.truncate_size){
             FatalError(errno,"-:Nepodarilo sa zmeniť veľkosť súboru – VSTUPNY SUBOR NEZMENENY\n",31);
         }
     }
