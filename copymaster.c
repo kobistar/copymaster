@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
         stat(sFile,&stat_buff);
         
         if(stat_buff.st_ino != cpm_options.inode_number){  //pri -i kopiruje ak plati podmienka
-            
+            noFlag = 0;
             FatalError(errno,"-:ZLY INODE\n",27);
         }
         if(!S_ISREG(stat_buff.st_mode)){ //a infile je obycajny subor
