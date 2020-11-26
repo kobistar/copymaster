@@ -27,7 +27,7 @@ int main(int argc, char* argv[]){
     struct stat stat_buff;
     
     //nasttaveniai prepinacov 
-    if (cpm_options.create + cpm_options.append + cpm_options.overwrite  > 1){
+    if (cpm_options.create && cpm_options.overwrite){
         fprintf(stderr, "CHYBA PREPINACOV\n");
         exit(EXIT_FAILURE);
     }
@@ -36,6 +36,13 @@ int main(int argc, char* argv[]){
         fprintf(stderr, "CHYBA PREPINACOV\n");
         exit(EXIT_FAILURE);
     }
+    if(cpm_options.link || cpm_options.sparse || cpm_options.directory){
+        if(argc > 4){
+            fprintf(stderr, "CHYBA PREPINACOV\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    
     stat(sFile,&stat_buff);
     int fd1,fd2;  //f1 In f2 OUT
     int noFlag = 1;
@@ -54,10 +61,16 @@ int main(int argc, char* argv[]){
         }
         close(fd1);
         int link_tmp;
+        /*
+        if (== -1){
+            if (errno == 2){
+                FatalError(errno, "-:VYSTUPNY SUBOR UZ EXISTUJE\n", 30);
+            } */
+            
         link_tmp = link(sFile,dFile);
         
         if(link_tmp < 0){
-            FatalError(errno, "-:VYSTUPNY SUBOR NEVYTVORENY\n", 23);
+            FatalError(errno, "-:VYSTUPNY SUBOR NEVYTVORENY\n", 30);
         }
         exit(0);
     }
@@ -72,8 +85,6 @@ int main(int argc, char* argv[]){
     }
     
     if(cpm_options.inode == 1){
-       
-        //stat(sFile,&stat_buff);
         
         if(stat_buff.st_ino != cpm_options.inode_number){  //pri -i kopiruje ak plati podmienka
             noFlag = 0;
@@ -82,10 +93,14 @@ int main(int argc, char* argv[]){
         else{
             fd2 = open(dFile, O_CREAT|O_WRONLY, stat_buff.st_mode);
         }
+        if(fd2 == -1){
+            if(errno == 2){
+                FatalError(errno, "-:INA CHYBA\n",27);
+            }
+        }    
         if(!S_ISREG(stat_buff.st_mode)){ //a infile je obycajny subor
             FatalError(errno,"-:ZLY TYP VSTUPNEHO SUBORU\n",27);
-    
-        }    
+        }
     }
     if(cpm_options.append){
         
@@ -93,7 +108,7 @@ int main(int argc, char* argv[]){
         
         if(fd2 == -1){
             if (errno == 2){
-                FatalError(errno, "-:SUBOR NEEXISTUJE\n", 23);
+                FatalError(errno, "-:SUBOR NEEXISTUJE\n", 22);
             } 
             else{
                 FatalError(errno, "-:INA CHYBA\n", 22);
@@ -108,7 +123,7 @@ int main(int argc, char* argv[]){
                 FatalError(errno, "-:SUBOR NEEXISTUJE\n", 24);
             } 
             else{
-                FatalError(errno, "-:INA CHYBA\n", 21);
+                FatalError(errno, "-:INA CHYBA\n", 24);
             }
         }
     }
@@ -123,6 +138,9 @@ int main(int argc, char* argv[]){
                 FatalError(errno, "-:INA CHYBA\n", 23);
             }
         }
+        if(cpm_options.create < 0 || cpm_options.create > 777){
+            FatalError(errno, "-:ZLE PRAVA\n",23)
+        }
     }
     
     else if(cpm_options.lseek == 1){
@@ -135,7 +153,10 @@ int main(int argc, char* argv[]){
         char buff[num];
 
         fd2 = open (dFile, O_CREAT | O_WRONLY, stat_buff.st_mode);
-        
+        if(fd2 == -1){
+            if(errno == 2)
+                FatalError(errno, "-:INA CHYBA\n", 33);
+        }
         if(lseek(fd1,pos1,SEEK_SET) != pos1){
             FatalError(errno, "-:CHYBA POZICIE infile",33);
         }
@@ -144,7 +165,6 @@ int main(int argc, char* argv[]){
         }
         read(fd1,buff,num);
         
-       //FatalError(errno, "-:INA CHYBA\n", 33);
         write(fd2,buff,num);
     }
     else{
@@ -152,7 +172,7 @@ int main(int argc, char* argv[]){
         
         if(fd2 == -1){
             if (errno == 2) {
-                FatalError(errno, "-:SUBOR EXISTUJE\n", 23);
+                FatalError(errno, "-:SUBOR EXISTUJE\n", 21);
             }
             else{
                 FatalError(errno, "-:INA CHYBA\n", 21);
@@ -187,16 +207,13 @@ int main(int argc, char* argv[]){
       
         stat(sFile,&stat_buff);
         if(truncate(sFile,cpm_options.truncate_size) < 0){
-            FatalError(errno,"-: INA CHYBA",31);
-        }
-        
-        if(stat_buff.st_ino == cpm_options.truncate_size){
-            FatalError(errno,"-:VSTUPNY SUBOR NEZMENENY\n",31);
+            FatalError(errno,"-:ZAPORNA VELKOST",31);
         }
     }
 
     close(fd1);
     close(fd2);
+    
     if(cpm_options.delete_opt == 1){
         if(remove(cpm_options.infile) < 0){             //zmazanie originalu az po zatvoreni
             if (errno == 2) {
