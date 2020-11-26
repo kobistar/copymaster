@@ -139,7 +139,7 @@ int main(int argc, char* argv[]){
             }
         }
         if(cpm_options.create < 0 || cpm_options.create > 777){
-            FatalError(errno, "-:ZLE PRAVA\n",23)
+            FatalError(errno, "-:ZLE PRAVA\n",23);
         }
     }
     
