@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
     int fd1,fd2;  //f1 In f2 OUT
     int noFlag = 1;
     
-    if(cpm_options.link == 1){
+    if(cpm_options.link){
         
         fd1 = open(sFile,O_RDONLY);
         
@@ -61,11 +61,6 @@ int main(int argc, char* argv[]){
         }
         close(fd1);
         int link_tmp;
-        /*
-        if (== -1){
-            if (errno == 2){
-                FatalError(errno, "-:VYSTUPNY SUBOR UZ EXISTUJE\n", 30);
-            } */
             
         link_tmp = link(sFile,dFile);
         
@@ -84,7 +79,7 @@ int main(int argc, char* argv[]){
         }
     }
     
-    if(cpm_options.inode == 1){
+    else if(cpm_options.inode){
         
         if(stat_buff.st_ino != cpm_options.inode_number){  //pri -i kopiruje ak plati podmienka
             noFlag = 0;
@@ -102,7 +97,7 @@ int main(int argc, char* argv[]){
             FatalError(errno,"-:ZLY TYP VSTUPNEHO SUBORU\n",27);
         }
     }
-    if(cpm_options.append){
+    else if(cpm_options.append){
         
         fd2 = open(dFile, O_CREAT|O_WRONLY|O_APPEND, stat_buff.st_mode);
         
@@ -115,7 +110,7 @@ int main(int argc, char* argv[]){
             }
         }
     }
-    else if (cpm_options.overwrite == 1){
+    else if (cpm_options.overwrite){
         fd2  = open(dFile, O_WRONLY|O_TRUNC, stat_buff.st_mode);
         
         if(fd2 == -1){
@@ -127,7 +122,7 @@ int main(int argc, char* argv[]){
             }
         }
     }
-    else if(cpm_options.create == 1){
+    else if(cpm_options.create){
         fd2 = open(dFile, O_EXCL|O_CREAT|O_WRONLY|O_TRUNC, cpm_options.create_mode);
         
         if(fd2 == -1){
@@ -143,7 +138,7 @@ int main(int argc, char* argv[]){
         }
     }
     
-    else if(cpm_options.lseek == 1){
+    else if(cpm_options.lseek){
         noFlag = 0;
         
         int pos1 = cpm_options.lseek_options.pos1;
